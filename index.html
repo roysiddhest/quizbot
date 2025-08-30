@@ -1562,7 +1562,7 @@ function selectAnswer(selectedIndex) {
                         </div>
                         <div class="percentage" style="color: #27ae60;">${percentage}% ACCURACY</div>
                         <div style="background: linear-gradient(135deg, #1a1a3a, #2d2d5a); padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 20px rgba(26, 26, 58, 0.3);">
-                            <h3 style="margin-bottom: 10px; color: #FFD700;">🥇 GOLD MEDAL</h3>
+                            <h3 style="margin-bottom: 14px; color: #FFD700;">🥇 GOLD MEDAL</h3>
                         </div>
                     </div>
                 `;
@@ -1588,9 +1588,9 @@ function selectAnswer(selectedIndex) {
                                 transition: all 0.3s ease;
                             " title="Take Screenshot">📸</button>
                         </div>
-                        <div class="percentage" style="color: #e67e22;">${percentage}% ACCURACY</div>
+                        <div class="percentage" style="color: #27ae60;">${percentage}% ACCURACY</div>
                         <div style="background: linear-gradient(135deg, #1a1a3a, #2d2d5a); padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 20px rgba(26, 26, 58, 0.3);">
-                            <h3 style="margin-bottom: 10px; color: #C0C0C0;">🥈 SILVER MEDAL</h3>
+                            <h3 style="margin-bottom: 14px; color: #C0C0C0;">🥈 SILVER MEDAL</h3>
                         </div>
                     </div>
                 `;
@@ -1616,9 +1616,9 @@ function selectAnswer(selectedIndex) {
                                 transition: all 0.3s ease;
                             " title="Take Screenshot">📸</button>
                         </div>
-                        <div class="percentage" style="color: #e74c3c;">${percentage}% ACCURACY</div>
+                        <div class="percentage" style="color: #27ae60;">${percentage}% ACCURACY</div>
                         <div style="background: linear-gradient(135deg, #1a1a3a, #2d2d5a); padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 20px rgba(26, 26, 58, 0.3);">
-                            <h3 style="margin-bottom: 10px; color: #CD7F32;">🥉 BRONZE MEDAL</h3>
+                            <h3 style="margin-bottom: 14px; color: #CD7F32;">🥉 BRONZE MEDAL</h3>
                         </div>
                     </div>
                 `;
@@ -1686,53 +1686,79 @@ function addShareButton() {
 // Updated share functionality that includes snapshot image
 shareBtn.onclick = async () => {
     try {
-        // Check if html2canvas is available (since you already have snapshot working)
         if (typeof html2canvas !== 'undefined') {
-            // Capture the results screen as image (same as your snapshot function)
             const resultsScreen = document.getElementById('resultsScreen');
             const canvas = await html2canvas(resultsScreen);
             
-            // Convert to blob
             canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    // If blob creation fails, just share text
+                    const scoreText = score;
+                    const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+                    const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/`;
+                    
+                    if (navigator.share) {
+                        await navigator.share({ text: shareMessage });
+                    } else {
+                        await navigator.clipboard.writeText(shareMessage);
+                        alert('📋 Score copied to clipboard!');
+                    }
+                    return;
+                }
+                
                 const scoreText = score;
                 const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+                const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/`;
                 
-            const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;                
-                // Create file from blob
-                const file = new File([blob], 'quizbot-score.png', { type: 'image/png' });
-                
-                // Try sharing image + text
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        text: shareMessage
+                // Chrome mobile-specific approach
+                try {
+                    const file = new File([blob], 'quizbot-score.png', { 
+                        type: 'image/png',
+                        lastModified: Date.now()
                     });
-                } else {
-                    // Fallback: just copy text
-                    await navigator.clipboard.writeText(shareMessage);
-                    alert('📋 Score copied to clipboard! Take a screenshot and share manually');
+                    
+                    // Check if file sharing is supported
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            text: shareMessage
+                        });
+                    } else {
+                        // Fallback to text-only for Chrome mobile
+                        if (navigator.share) {
+                            await navigator.share({ text: shareMessage });
+                        } else {
+                            await navigator.clipboard.writeText(shareMessage);
+                            alert('📋 Score copied to clipboard! Take a screenshot and share manually');
+                        }
+                    }
+                } catch (shareError) {
+                    // Chrome mobile fallback
+                    if (navigator.share) {
+                        await navigator.share({ text: shareMessage });
+                    } else {
+                        await navigator.clipboard.writeText(shareMessage);
+                        alert('📋 Score copied to clipboard!');
+                    }
                 }
-            });
-        } else {
-            // Fallback without image
-            const scoreText = score;
-            const percentage = Math.round((parseInt(scoreText) / 250) * 100);
-            const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;
-            
-            if (navigator.share) {
-                await navigator.share({
-                    text: shareMessage
-                });
-            } else {
-                await navigator.clipboard.writeText(shareMessage);
-                alert('📋 Score copied to clipboard!');
-            }
+            }, 'image/png', 0.9); // Add quality parameter for Chrome
         }
     } catch (error) {
         console.error('Share failed:', error);
-        alert('Unable to share. Please try again.');
+        // Final fallback
+        const scoreText = score;
+        const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+        const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/`;
+        
+        if (navigator.share) {
+            await navigator.share({ text: shareMessage });
+        } else {
+            await navigator.clipboard.writeText(shareMessage);
+            alert('📋 Score copied to clipboard!');
+        }
     }
 };
+
 
             // Add share button after snapshot button
             container.appendChild(shareBtn);
