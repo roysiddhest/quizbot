@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUIZBOT - Interactive Quiz Game</title>
+    <title>QUIZBOT - Ultimate Quiz Game</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -189,23 +189,13 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            transition: left 0.3s;
         }
         
         .btn:hover::before {
             left: 100%;
         }
-        
-        .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 
-                0 15px 30px rgba(0, 212, 255, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn:active {
-            transform: translateY(-2px);
-        }
+
         
         .option-btn {
             display: block;
@@ -224,23 +214,12 @@
             overflow: hidden;
         }
         
-        .option-btn:hover {
-    background: linear-gradient(135deg, #3a3a5c, #4a4a7c);
-    border-color: #00d4ff;
-}
 
 .option-btn:hover::before {
     left: -100%; /* Keep static instead of 100% */
 }
 
-        
-        .option-btn:hover {
-            background: linear-gradient(135deg, #3a3a5c, #4a4a7c);
-            border-color: #00d4ff;
-            transform: translateX(10px);
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
-        }
-        
+
         .option-btn.correct {
             background: linear-gradient(135deg, #27ae60, #2ecc71);
             border-color: #27ae60;
@@ -252,17 +231,17 @@
             position: absolute;
             right: 25px;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translateY(-30%);
             font-size: 1.5em;
             font-weight: bold;
             color: white;
-            animation: checkmark 0.5s ease 0.3s both;
+            animation: checkmark 0.4s ease 0.3s both;
         }
         
         .option-btn.incorrect {
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             border-color: #e74c3c;
-            animation: shake 0.6s ease;
+            animation: shake 0.4s ease;
         }
         
         .option-btn.incorrect::after {
@@ -270,11 +249,11 @@
             position: absolute;
             right: 25px;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translateY(-30%);
             font-size: 1.5em;
             font-weight: bold;
             color: white;
-            animation: crossmark 0.5s ease 0.3s both;
+            animation: crossmark 0.4s ease 0.3s both;
         }
         
         @keyframes correctPulse {
@@ -493,8 +472,8 @@
         padding: 5px;
     }
         .info-controls {
-        top: 10px;
-        left: 10px;
+        top: 18px;
+        left: 18px;
     }
     .game-controls {
         top: 10px;
@@ -711,7 +690,7 @@
     </div>
     
     <div class="logo">🤖 QUIZBOT</div>
-    <div class="subtitle">Ultimate Knowledge Quiz</div>
+    <div class="subtitle">Ultimate Quiz Challenge</div>
     
     <div class="game-info">
         <div class="info-card">
@@ -733,7 +712,7 @@
     </div>
     
     <p style="font-size: 1.2em; margin: 30px 0; opacity: 0.9; color: #00d4ff;">
-        Quiz on Pop Culture, Geography, History, Sports, Science, and more!
+    Pop Culture, Science, Geopolitics, History, Sports, Astronomy and more!
     </p>
     
     <button class="btn" onclick="startGame()">🚀 START CHALLENGE</button>
@@ -1200,7 +1179,6 @@ document.addEventListener('DOMContentLoaded', setupInfoButton);
 {category: "🍽️ World Cuisine", q: "Where does sushi originate from?", options: ["Japan", "China", "Korea", "Thailand"], correct: 0},
 {category: "🍽️ World Cuisine", q: "Which country invented the croissant?", options: ["France", "Austria", "Germany", "Italy"], correct: 1},
 {category: "🍽️ World Cuisine", q: "What is the main ingredient in hummus?", options: ["Lentils", "Chickpeas", "Black beans", "Kidney beans"], correct: 1},
-{category: "🍽️ World Cuisine", q: "Which country is famous for inventing pasta?", options: ["Greece", "Italy", "France", "Spain"], correct: 1},
 {category: "🍽️ World Cuisine", q: "What spice gives curry its yellow color?", options: ["Saffron", "Turmeric", "Paprika", "Cumin"], correct: 1},
 {category: "🍽️ World Cuisine", q: "Which country is the origin of the tango dance?", options: ["Spain", "Brazil", "Argentina", "Mexico"], correct: 2},
 {category: "🍽️ World Cuisine", q: "What is the traditional bread of India called?", options: ["Pita", "Naan", "Tortilla", "Baguette"], correct: 1},
@@ -1445,6 +1423,13 @@ function fisherYatesShuffle(array) {
 
         
         function showQuestion() {
+    // Clear all previous states from option buttons
+    const options = document.querySelectorAll('.option-btn');
+    options.forEach(option => {
+        option.classList.remove('selected', 'correct', 'incorrect');
+        option.disabled = false;
+        option.style.transform = 'none'; // Reset any inline transforms
+    });
             if (currentQuestion >= selectedQuestions.length) {
                 showResults();
                 return;
@@ -1557,9 +1542,9 @@ function selectAnswer(selectedIndex) {
                 resultHTML = `
                     <div class="results-container">
                         <div class="results-icon">🏆</div>
-                        <h1 style="color: #00d4ff; font-size: 3em; margin-bottom: 20px;">JACKPOT!</h1>
+                        <h1 style="color: #00d4ff; font-size: 3em; margin-bottom: 15px;">CHAMPION!</h1>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0;">
-                            <div class="final-score">SCORE: ${score}/250</div>
+                            <div class="final-score">YOUR SCORE: ${score}/250</div>
                             <button onclick="takeScreenshot()" style="
                                 background: linear-gradient(135deg, #2d2d44, #3a3a5c);
                                 border: 2px solid #00d4ff;
@@ -1578,7 +1563,6 @@ function selectAnswer(selectedIndex) {
                         <div class="percentage" style="color: #27ae60;">${percentage}% ACCURACY</div>
                         <div style="background: linear-gradient(135deg, #1a1a3a, #2d2d5a); padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 20px rgba(26, 26, 58, 0.3);">
                             <h3 style="margin-bottom: 10px; color: #FFD700;">🥇 GOLD MEDAL</h3>
-                            <p>You Are The Quiz Champion!</p>
                         </div>
                     </div>
                 `;
@@ -1586,9 +1570,9 @@ function selectAnswer(selectedIndex) {
                 resultHTML = `
                     <div class="results-container">
                         <div class="results-icon">🎯</div>
-                        <h1 style="color: #ff6b9d; font-size: 3em; margin-bottom: 20px;">WELL PLAYED!</h1>
+                        <h1 style="color: #ff6b9d; font-size: 3em; margin-bottom: 15px;">WELL PLAYED!</h1>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0;">
-                            <div class="final-score">SCORE: ${score}/250</div>
+                            <div class="final-score">YOUR SCORE: ${score}/250</div>
                             <button onclick="takeScreenshot()" style="
                                 background: linear-gradient(135deg, #2d2d44, #3a3a5c);
                                 border: 2px solid #00d4ff;
@@ -1607,7 +1591,6 @@ function selectAnswer(selectedIndex) {
                         <div class="percentage" style="color: #e67e22;">${percentage}% ACCURACY</div>
                         <div style="background: linear-gradient(135deg, #1a1a3a, #2d2d5a); padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 20px rgba(26, 26, 58, 0.3);">
                             <h3 style="margin-bottom: 10px; color: #C0C0C0;">🥈 SILVER MEDAL</h3>
-                            <p>Play Again For The Gold!</p>
                         </div>
                     </div>
                 `;
@@ -1615,9 +1598,9 @@ function selectAnswer(selectedIndex) {
                 resultHTML = `
                     <div class="results-container">
                         <div class="results-icon">👻</div>
-                        <h1 style="color: #e74c3c; font-size: 3em; margin-bottom: 20px;">NICE TRY!</h1>
+                        <h1 style="color: #e74c3c; font-size: 3em; margin-bottom: 15px;">NICE TRY!</h1>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0;">
-                            <div class="final-score">SCORE: ${score}/250</div>
+                            <div class="final-score">YOUR SCORE: ${score}/250</div>
                             <button onclick="takeScreenshot()" style="
                                 background: linear-gradient(135deg, #2d2d44, #3a3a5c);
                                 border: 2px solid #00d4ff;
@@ -1636,7 +1619,6 @@ function selectAnswer(selectedIndex) {
                         <div class="percentage" style="color: #e74c3c;">${percentage}% ACCURACY</div>
                         <div style="background: linear-gradient(135deg, #1a1a3a, #2d2d5a); padding: 20px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 20px rgba(26, 26, 58, 0.3);">
                             <h3 style="margin-bottom: 10px; color: #CD7F32;">🥉 BRONZE MEDAL</h3>
-                            <p>Practice Makes Perfect - Try Again!</p>
                         </div>
                     </div>
                 `;
@@ -1645,10 +1627,10 @@ function selectAnswer(selectedIndex) {
             resultHTML += `
                 <div style="display: flex; gap: 20px; justify-content: center; margin-top: 40px; flex-wrap: wrap;">
                     <button class="btn" onclick="playAgain()" style="background: linear-gradient(135deg, #ff6b9d, #c44569);">
-                        🎮 PLAY AGAIN
+                        🎮 PLAY
                     </button>
                     <button class="btn" onclick="goHome()" style="background: linear-gradient(135deg, #00d4ff, #0099cc);">
-                        🏠 MAIN MENU
+                        🏠 HOME
                     </button>
                 </div>
             `;
@@ -1711,37 +1693,35 @@ shareBtn.onclick = async () => {
             const resultsScreen = document.getElementById('resultsScreen');
             const canvas = await html2canvas(resultsScreen);
             
-            // Convert to blob
-            canvas.toBlob(async (blob) => {
-                const scoreText = score;
-                const percentage = Math.round((parseInt(scoreText) / 250) * 100);
-                
-                    const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;
-                // Create file from blob
-                const file = new File([blob], 'quizbot-score.png', { type: 'image/png' });
-                
-                // Try sharing image + text
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        title: 'QUIZBOT Challenge!',
-                        text: shareMessage
-                    });
-                } else {
-                    // Fallback: just copy text
-                    await navigator.clipboard.writeText(shareMessage);
-                    alert('📋 Score details copied to clipboard! Take a screenshot manually to share the image.');
-                }
-            });
+            // Convert to blob using Promise instead of callback
+            const blob = await new Promise(resolve => canvas.toBlob(resolve));
+            
+            const scoreText = score;
+            const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+            
+            const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;
+            
+            // Create file from blob
+            const file = new File([blob], 'quizbot-score.png', { type: 'image/png' });
+            
+            // Try sharing image + text
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    text: shareMessage
+                });
+            } else {
+                // Fallback: just copy text
+                await navigator.clipboard.writeText(shareMessage);
+                alert('📋 Score details copied to clipboard! Take a screenshot manually to share the image.');
+            }
         } else {
             // Fallback without image
             const scoreText = score;
             const percentage = Math.round((parseInt(scoreText) / 250) * 100);
-            const shareMessage = `🎯 I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score?\n${window.location.href}`;
-            
+            const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;            
             if (navigator.share) {
                 await navigator.share({
-                    title: 'QUIZBOT Challenge',
                     text: shareMessage
                 });
             } else {
@@ -1753,7 +1733,8 @@ shareBtn.onclick = async () => {
         console.error('Share failed:', error);
         alert('Unable to share. Please try again.');
     }
-};    
+};
+
             // Add share button after snapshot button
             container.appendChild(shareBtn);
         }
