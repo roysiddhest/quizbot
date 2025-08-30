@@ -1685,69 +1685,113 @@ function addShareButton() {
             
             // Share functionality
             // Updated share functionality that includes snapshot image
+// Robust double-click fallback share functionality
+let shareAttempts = 0;
+let lastShareTime = 0;
+
 shareBtn.onclick = async () => {
+    const currentTime = Date.now();
+    const timeSinceLastClick = currentTime - lastShareTime;
+    lastShareTime = currentTime;
+    
+    // Reset attempts after 5 seconds of inactivity
+    if (timeSinceLastClick > 5000) {
+        shareAttempts = 0;
+    }
+    
+    shareAttempts++;
+    
     try {
-        // Check if html2canvas is available (since you already have snapshot working)
-        if (typeof html2canvas !== 'undefined') {
-            // Capture the results screen as image (same as your snapshot function)
-            const resultsScreen = document.getElementById('resultsScreen');
-            const canvas = await html2canvas(resultsScreen);
-            
-            // Convert to blob - back to callback approach but properly handled
-            canvas.toBlob(async (blob) => {
-                if (!blob) {
-                    alert('Unable to create image for sharing.');
+        if (typeof html2canvas === 'undefined') {
+            alert('Please use a modern browser for sharing features');
+            return;
+        }
+        
+        // Show different behavior on first vs second attempt
+        if (shareAttempts > 1) {
+            shareBtn.innerHTML = '⏳';
+            shareBtn.disabled = true;
+        }
+        
+        const resultsScreen = document.getElementById('resultsScreen');
+        const canvas = await html2canvas(resultsScreen);
+        
+        // Convert to blob with callback (more reliable on mobile)
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                if (shareAttempts === 1) {
+                    alert('Unable to create image. Please double click share and retry.');
+                    return;
+                } else {
+                    alert('Image creation failed. Try taking a manual screenshot.');
+                    shareAttempts = 0;
                     return;
                 }
-                
-                const scoreText = score;
-                const percentage = Math.round((parseInt(scoreText) / 250) * 100);
-                
-                const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;
-                
+            }
+            
+            const scoreText = score;
+            const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+            const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;
+            
+            try {
                 // Create file from blob
                 const file = new File([blob], 'quizbot-score.png', { type: 'image/png' });
                 
-                // Try sharing image + text with better mobile compatibility
-                try {
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            text: shareMessage
-                        });
-                    } else if (navigator.share) {
-                        // Fallback to text-only sharing if files not supported
-                        await navigator.share({
-                            text: shareMessage
-                        });
-                    } else {
-                        // Fallback: just copy text
-                        await navigator.clipboard.writeText(shareMessage);
-                        alert('📋 Score details copied to clipboard! Take a screenshot manually to share the image.');
-                    }
-                } catch (shareError) {
-                    // If sharing fails, try clipboard
+                // Multi-level sharing attempts
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        text: shareMessage
+                    });
+                } else if (navigator.share) {
+                    // Text-only sharing
+                    await navigator.share({
+                        text: shareMessage
+                    });
+                } else {
+                    // Clipboard fallback
                     await navigator.clipboard.writeText(shareMessage);
                     alert('📋 Score details copied to clipboard! Take a screenshot manually to share the image.');
                 }
-            });
-        } else {
-            // Fallback without image
-            const scoreText = score;
-            const percentage = Math.round((parseInt(scoreText) / 250) * 100);
-                const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;            
-            if (navigator.share) {
-                await navigator.share({
-                    text: shareMessage
-                });
-            } else {
-                await navigator.clipboard.writeText(shareMessage);
-                alert('📋 Score copied to clipboard!');
+                
+                // Reset attempts on successful share
+                shareAttempts = 0;
+                
+            } catch (shareError) {
+                console.error('Share API failed:', shareError);
+                
+                if (shareAttempts === 1) {
+                    alert('Share failed. Please click share again to retry.');
+                } else {
+                    // Final fallback on second attempt
+                    try {
+                        await navigator.clipboard.writeText(shareMessage);
+                        alert('📋 Sharing failed, but your score details are copied to clipboard!');
+                    } catch (clipError) {
+                        alert('Sharing not supported on this device. Please take a manual screenshot.');
+                    }
+                    shareAttempts = 0;
+                }
+            } finally {
+                // Re-enable button
+                shareBtn.disabled = false;
+                shareBtn.innerHTML = '💬';
             }
-        }
+        });
+        
     } catch (error) {
-        console.error('Share failed:', error);
-        alert('Unable to share. Please try again.');
+        console.error('General share error:', error);
+        
+        if (shareAttempts === 1) {
+            alert('Share failed. Please click again to retry.');
+        } else {
+            alert('Unable to share. Please try taking a manual screenshot of your results.');
+            shareAttempts = 0;
+        }
+        
+        // Re-enable button
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = '💬';
     }
 };
 
