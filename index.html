@@ -37,7 +37,7 @@
         
         .container {
             max-width: 900px;
-            width: 90%;
+            width: 95%;
             padding: 20px;
             text-align: center;
             position: relative;
@@ -49,7 +49,7 @@
             right: 20px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 10px;
             z-index: 1000;
         }
         
@@ -224,20 +224,15 @@
             overflow: hidden;
         }
         
-        .option-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
-            transition: left 0.3s;
-        }
-        
-        .option-btn:hover::before {
-            left: 100%;
-        }
+        .option-btn:hover {
+    background: linear-gradient(135deg, #3a3a5c, #4a4a7c);
+    border-color: #00d4ff;
+}
+
+.option-btn:hover::before {
+    left: -100%; /* Keep static instead of 100% */
+}
+
         
         .option-btn:hover {
             background: linear-gradient(135deg, #3a3a5c, #4a4a7c);
@@ -452,18 +447,64 @@
             color: #f8f9fa;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+        /* Separate containers for info (left) and controls (right) */
+.info-controls {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.game-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+/* Info label appears to the right of the i button */
+.info-label {
+    position: absolute;
+    left: 60px;
+    top: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    white-space: nowrap;
+    color: white;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+
         /* Enhanced Mobile Optimization */
 @media (max-width: 768px) {
     body {
         padding: 5px;
     }
-    
+        .info-controls {
+        top: 10px;
+        left: 10px;
+    }
+    .game-controls {
+        top: 10px;
+        right: 10px;
+    }
     .container {
         max-width: 100%;
-        width: 95%;
+        width: 98%;
         padding: 5px;
-        height: 95%;
+        min-height: 98%;
     }
     
     /* Start Screen Mobile Optimization */
@@ -520,7 +561,7 @@
     .game-controls {
         top: 15px;
         right: 10px;
-        gap: 2px !important;
+        gap: 10px !important;
     }
     
     .control-btn {
@@ -584,10 +625,6 @@
         padding: 15px 18px;
         font-size: 1em;
         border-radius: 12px;
-    }
-    
-    .option-btn:hover {
-        transform: translateX(5px);
     }
     
     /* Results Screen Mobile Optimization */
@@ -941,49 +978,42 @@
         
         // Corrected Info button setup function
 function setupInfoButton() {
-    const gameControls = document.querySelectorAll('.game-controls');
+    // Create separate info controls for each screen
+    const screens = ['startScreen', 'gameScreen', 'resultsScreen'];
     
-    gameControls.forEach(controls => {
-        // Create info button (same size as other buttons)
-        const infoButton = document.createElement('button');
-        infoButton.textContent = 'i';
-        infoButton.title = 'App Info';
-        infoButton.className = 'control-btn';
-        infoButton.id = 'infoBtn';
+    screens.forEach(screenId => {
+        const screen = document.getElementById(screenId);
+        if (!screen) return;
         
-        // Create info label (positioned absolutely to not affect layout)
-        const infoLabel = document.createElement('div');
-        infoLabel.textContent = 'App Developed by Siddhest Roy';
-        infoLabel.style.cssText = `
-            position: absolute;
-            right: 60px;
-            top: 0;
-            color: white;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            white-space: nowrap;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            z-index: 1001;
-        `;
+        // Create info controls container (top-left)
+        const infoControls = document.createElement('div');
+        infoControls.className = 'info-controls';
         
-        // Create container for button and label
-        const container = document.createElement('div');
-        container.style.cssText = `
+        // Create info container
+        const infoContainer = document.createElement('div');
+        infoContainer.style.cssText = `
             position: relative;
             width: 50px;
             height: 50px;
         `;
         
-        container.appendChild(infoButton);
-        container.appendChild(infoLabel);
+        // Create info label
+        const infoLabel = document.createElement('div');
+        infoLabel.textContent = 'App Developed by Siddhest Roy';
+        infoLabel.className = 'info-label';
         
-        // Insert at the very beginning (top) of game-controls
-        controls.insertBefore(container, controls.firstChild);
+        // Create info button
+        const infoButton = document.createElement('button');
+        infoButton.textContent = 'i';
+        infoButton.title = 'App Info';
+        infoButton.className = 'control-btn';
+        
+        infoContainer.appendChild(infoLabel);
+        infoContainer.appendChild(infoButton);
+        infoControls.appendChild(infoContainer);
+        
+        // Add to screen
+        screen.appendChild(infoControls);
         
         // Toggle functionality
         let isInfoVisible = false;
@@ -1011,7 +1041,7 @@ function setupInfoButton() {
         }
         
         function handleOutsideClick(e) {
-            if (!container.contains(e.target)) {
+            if (!infoContainer.contains(e.target)) {
                 hideInfo();
             }
         }
@@ -1020,6 +1050,7 @@ function setupInfoButton() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', setupInfoButton);
+
 
         function takeScreenshot() {
             // Create a temporary canvas to capture the results screen
@@ -1109,7 +1140,8 @@ document.addEventListener('DOMContentLoaded', setupInfoButton);
             document.getElementById('confirmExit').onclick = () => {
                 document.body.removeChild(popup);
                 document.head.removeChild(style);
-                stopBackgroundMusic();
+                clearInterval(timerInterval); // Add this line
+                stopBackgroundMusic(); // Add this line
                 document.getElementById('gameScreen').classList.add('hidden');
                 document.getElementById('resultsScreen').classList.add('hidden');
                 document.getElementById('startScreen').classList.remove('hidden');
@@ -1133,212 +1165,8 @@ document.addEventListener('DOMContentLoaded', setupInfoButton);
             {category: "🎬 Pop Culture", q: "What is the highest-grossing film of all time?", options: ["Titanic", "Avatar", "Avengers: Endgame", "Star Wars: The Force Awakens"], correct: 2},
             {category: "🎬 Pop Culture", q: "Which streaming service produced 'The Crown'?", options: ["Netflix", "Amazon Prime", "Disney+", "HBO Max"], correct: 0},
             {category: "🎬 Pop Culture", q: "What does 'MCU' stand for in movies?", options: ["Marvel Comic Universe", "Marvel Cinematic Universe", "Modern Cinema Universe", "Marvel Character Universe"], correct: 1},
-            
-            // Geography & Landmarks (10 questions)
-            {category: "🌍 Geography", q: "Which country is shaped like a boot?", options: ["Spain", "Italy", "Greece", "Portugal"], correct: 1},
-            {category: "🌍 Geography", q: "What is the longest river in the world?", options: ["Amazon", "Nile", "Mississippi", "Yangtze"], correct: 1},
-            {category: "🌍 Geography", q: "Mount Everest is located between which two countries?", options: ["India & China", "Nepal & China", "Nepal & India", "Bhutan & China"], correct: 1},
-            {category: "🌍 Geography", q: "Which desert is the largest in the world?", options: ["Sahara", "Gobi", "Antarctica", "Arabian"], correct: 2},
-            {category: "🌍 Geography", q: "What is the capital of Canada?", options: ["Toronto", "Vancouver", "Montreal", "Ottawa"], correct: 3},
-            {category: "🌍 Geography", q: "Which ocean is the smallest?", options: ["Arctic", "Indian", "Atlantic", "Pacific"], correct: 0},
-            {category: "🌍 Geography", q: "The Statue of Liberty was a gift from which country?", options: ["England", "France", "Spain", "Germany"], correct: 1},
-            {category: "🌍 Geography", q: "Which European city is known as the 'City of Canals'?", options: ["Amsterdam", "Venice", "Bruges", "Stockholm"], correct: 1},
-            {category: "🌍 Geography", q: "What is the smallest country in the world?", options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], correct: 1},
-            {category: "🌍 Geography", q: "Which mountain range contains Mount Everest?", options: ["Andes", "Alps", "Himalayas", "Rockies"], correct: 2},
-            
-            // History & World Events (10 questions)
-            {category: "📜 History", q: "Who was the first woman to win a Nobel Prize?", options: ["Marie Curie", "Mother Teresa", "Jane Addams", "Bertha von Suttner"], correct: 0},
-            {category: "📜 History", q: "The Titanic sank in which year?", options: ["1910", "1912", "1914", "1916"], correct: 1},
-            {category: "📜 History", q: "Which ancient wonder was located in Babylon?", options: ["Colossus of Rhodes", "Hanging Gardens", "Temple of Artemis", "Mausoleum"], correct: 1},
-            {category: "📜 History", q: "Who invented the telephone?", options: ["Thomas Edison", "Nikola Tesla", "Alexander Graham Bell", "Benjamin Franklin"], correct: 2},
-            {category: "📜 History", q: "The Great Wall of China was built to keep out which group?", options: ["Romans", "Mongols", "Japanese", "Vikings"], correct: 1},
-            {category: "📜 History", q: "Which empire was led by Genghis Khan?", options: ["Roman", "Ottoman", "Mongol", "Byzantine"], correct: 2},
-            {category: "📜 History", q: "In which year did the Berlin Wall fall?", options: ["1987", "1989", "1991", "1993"], correct: 1},
-            {category: "📜 History", q: "Who was the first person to walk on the moon?", options: ["Buzz Aldrin", "Neil Armstrong", "Michael Collins", "Alan Shepard"], correct: 1},
-            {category: "📜 History", q: "Which war was fought from 1914 to 1918?", options: ["World War II", "World War I", "Korean War", "Vietnam War"], correct: 1},
-            {category: "📜 History", q: "Who painted the ceiling of the Sistine Chapel?", options: ["Leonardo da Vinci", "Raphael", "Michelangelo", "Donatello"], correct: 2},
-            
-            // Sports & Games (10 questions)
-            {category: "⚽ Sports", q: "How many minutes are in a rugby match?", options: ["80", "90", "70", "60"], correct: 0},
-            {category: "⚽ Sports", q: "Which country has won the most FIFA World Cups?", options: ["Germany", "Argentina", "Brazil", "Italy"], correct: 2},
-            {category: "⚽ Sports", q: "In golf, what is a score of one under par called?", options: ["Eagle", "Birdie", "Bogey", "Albatross"], correct: 1},
-            {category: "⚽ Sports", q: "How many players are in a volleyball team on court?", options: ["5", "6", "7", "8"], correct: 1},
-            {category: "⚽ Sports", q: "In which sport would you perform a slam dunk?", options: ["Volleyball", "Basketball", "Tennis", "Badminton"], correct: 1},
-            {category: "⚽ Sports", q: "How many holes are there in a full round of golf?", options: ["16", "18", "20", "22"], correct: 1},
-            {category: "⚽ Sports", q: "Which country hosted the 2016 Summer Olympics?", options: ["China", "UK", "Brazil", "Russia"], correct: 2},
-            {category: "⚽ Sports", q: "What is the maximum score possible in ten-pin bowling?", options: ["200", "250", "300", "350"], correct: 2},
-            {category: "⚽ Sports", q: "In American football, how many points is a touchdown worth?", options: ["3", "6", "7", "8"], correct: 1},
-            
-            // Science & Nature (10 questions)
-            {category: "🔬 Science", q: "What is the hardest natural substance on Earth?", options: ["Gold", "Iron", "Diamond", "Platinum"], correct: 2},
-            {category: "🔬 Science", q: "How many bones do sharks have?", options: ["Over 200", "About 100", "Zero", "Around 50"], correct: 2},
-            {category: "🔬 Science", q: "What gas makes up most of Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], correct: 2},
-            {category: "🔬 Science", q: "How many sides does a snowflake have?", options: ["4", "5", "6", "8"], correct: 2},
-            {category: "🔬 Science", q: "What is the chemical formula for table salt?", options: ["NaCl", "H2O", "CO2", "CaCl2"], correct: 0},
-            {category: "🔬 Science", q: "Which planet has the most moons?", options: ["Jupiter", "Saturn", "Neptune", "Uranus"], correct: 1},
-            {category: "🔬 Science", q: "What type of animal is a Komodo dragon?", options: ["Snake", "Lizard", "Crocodile", "Dinosaur"], correct: 1},
-            {category: "🔬 Science", q: "What is the speed of light in a vacuum?", options: ["299,792,458 m/s", "300,000,000 m/s", "250,000,000 m/s", "350,000,000 m/s"], correct: 0},
-            {category: "🔬 Science", q: "Which blood type is known as the universal donor?", options: ["A+", "B+", "AB+", "O-"], correct: 3},
-            {category: "🔬 Science", q: "What is the smallest unit of matter?", options: ["Molecule", "Atom", "Proton", "Electron"], correct: 1},
-            
-            // Food & Cuisine (10 questions)
-            {category: "🍕 Food", q: "What spice is derived from the Crocus flower?", options: ["Turmeric", "Saffron", "Paprika", "Cumin"], correct: 1},
-            {category: "🍕 Food", q: "Which fruit is known as the 'king of fruits'?", options: ["Mango", "Durian", "Pineapple", "Dragon fruit"], correct: 0},
-            {category: "🍕 Food", q: "What is the main ingredient in guacamole?", options: ["Tomato", "Avocado", "Pepper", "Onion"], correct: 1},
-            {category: "🍕 Food", q: "Which country drinks the most coffee per capita?", options: ["Brazil", "Italy", "Finland", "Colombia"], correct: 2},
-            {category: "🍕 Food", q: "What type of pastry is used to make profiteroles?", options: ["Puff pastry", "Shortcrust pastry", "Choux pastry", "Filo pastry"], correct: 2},
-            {category: "🍕 Food", q: "Which herb is traditionally used in pesto?", options: ["Oregano", "Basil", "Thyme", "Rosemary"], correct: 1},
-            {category: "🍕 Food", q: "What is the main ingredient in hummus?", options: ["Lentils", "Chickpeas", "Black beans", "Kidney beans"], correct: 1},
-            {category: "🍕 Food", q: "Which country originated sushi?", options: ["China", "Japan", "Korea", "Thailand"], correct: 1},
-            {category: "🍕 Food", q: "What is the hottest part of a chili pepper?", options: ["Skin", "Seeds", "Flesh", "Stem"], correct: 1},
-            
-            // Technology & Innovation (10 questions)
-            {category: "💻 Technology", q: "Who founded Microsoft?", options: ["Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"], correct: 1},
-            {category: "💻 Technology", q: "What does 'HTTP' stand for?", options: ["HyperText Transfer Protocol", "High Tech Transfer Process", "HyperText Transmission Path", "High Transfer Tech Protocol"], correct: 0},
-            {category: "💻 Technology", q: "Which company makes the iPhone?", options: ["Google", "Samsung", "Apple", "Microsoft"], correct: 2},
-            {category: "💻 Technology", q: "What does 'USB' stand for?", options: ["Universal Serial Bus", "Ultra Speed Bridge", "United System Base", "Universal System Bus"], correct: 0},
-            {category: "💻 Technology", q: "What does 'RAM' stand for in computers?", options: ["Random Access Memory", "Rapid Access Memory", "Remote Access Memory", "Read Access Memory"], correct: 0},
-            {category: "💻 Technology", q: "Which programming language is known for its use in web development?", options: ["C++", "JavaScript", "Assembly", "COBOL"], correct: 1},
-            {category: "💻 Technology", q: "What does 'GPU' stand for?", options: ["Central Processing Unit", "Graphics Processing Unit", "Graphical Program Unit", "Game Program Unit"], correct: 1},
-            {category: "💻 Technology", q: "Which company owns the Android operating system?", options: ["Apple", "Microsoft", "Google", "Samsung"], correct: 2},
-            {category: "💻 Technology", q: "What does 'Wi-Fi' stand for?", options: ["Wireless Fidelity", "Wireless Frequency", "Wide Fidelity", "It doesn't stand for anything"], correct: 3},
-            
-            // Animals & Nature (10 questions)
-            {category: "🦁 Animals", q: "Which animal is known as the 'Ship of the Desert'?", options: ["Horse", "Elephant", "Camel", "Donkey"], correct: 2},
-            {category: "🦁 Animals", q: "How many hearts does an octopus have?", options: ["1", "2", "3", "4"], correct: 2},
-            {category: "🦁 Animals", q: "Which bird can fly backwards?", options: ["Eagle", "Sparrow", "Hummingbird", "Robin"], correct: 2},
-            {category: "🦁 Animals", q: "What is a group of lions called?", options: ["Pack", "Herd", "Pride", "Flock"], correct: 2},
-            {category: "🦁 Animals", q: "Which mammal is known to have the most powerful bite?", options: ["Lion", "Shark", "Hippo", "Crocodile"], correct: 2},
-            {category: "🦁 Animals", q: "Which animal can sleep for up to 22 hours a day?", options: ["Sloth", "Koala", "Bear", "Cat"], correct: 1},
-            {category: "🦁 Animals", q: "What is the largest species of shark?", options: ["Great White", "Tiger Shark", "Whale Shark", "Hammerhead"], correct: 2},
-            {category: "🦁 Animals", q: "Which animal has the longest lifespan?", options: ["Elephant", "Tortoise", "Whale", "Parrot"], correct: 1},
-            {category: "🦁 Animals", q: "What is the fastest marine animal?", options: ["Dolphin", "Sailfish", "Tuna", "Marlin"], correct: 1},
-            
-            // Space & Universe (10 questions)
-            {category: "🚀 Space", q: "Which planet is closest to the Sun?", options: ["Venus", "Mercury", "Earth", "Mars"], correct: 1},
-            {category: "🚀 Space", q: "How many moons does Mars have?", options: ["0", "1", "2", "3"], correct: 2},
-            {category: "🚀 Space", q: "What is the name of our galaxy?", options: ["Andromeda", "Whirlpool", "Milky Way", "Spiral"], correct: 2},
-            {category: "🚀 Space", q: "Who was the first person in space?", options: ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "John Glenn"], correct: 2},
-            {category: "🚀 Space", q: "How long does it take light from the Sun to reach Earth?", options: ["8 minutes", "1 hour", "1 day", "1 second"], correct: 0},
-            {category: "🚀 Space", q: "Which planet is known as the 'Red Planet'?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 1},
-            {category: "🚀 Space", q: "What is the largest planet in our solar system?", options: ["Saturn", "Jupiter", "Neptune", "Uranus"], correct: 1},
-            {category: "🚀 Space", q: "How many planets are in our solar system?", options: ["7", "8", "9", "10"], correct: 1},
-            {category: "🚀 Space", q: "What is the hottest planet in our solar system?", options: ["Mercury", "Venus", "Mars", "Jupiter"], correct: 1},
-            {category: "🚀 Space", q: "Which space agency landed the first humans on the moon?", options: ["ESA", "NASA", "Roscosmos", "JAXA"], correct: 1},
-            
-            // Literature & Arts (10 questions)
-            {category: "📚 Literature", q: "Who wrote 'Romeo and Juliet'?", options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"], correct: 1},
-            {category: "📚 Literature", q: "Which book begins with 'It was the best of times, it was the worst of times'?", options: ["Great Expectations", "A Tale of Two Cities", "Oliver Twist", "David Copperfield"], correct: 1},
-            {category: "📚 Literature", q: "Who painted 'The Starry Night'?", options: ["Pablo Picasso", "Vincent van Gogh", "Leonardo da Vinci", "Claude Monet"], correct: 1},
-            {category: "📚 Literature", q: "In which city is Shakespeare's Romeo and Juliet set?", options: ["Venice", "Florence", "Verona", "Rome"], correct: 2},
-            {category: "📚 Literature", q: "Who wrote the Harry Potter series?", options: ["J.R.R. Tolkien", "J.K. Rowling", "C.S. Lewis", "Roald Dahl"], correct: 1},
-            {category: "📚 Literature", q: "Which artist cut off his own ear?", options: ["Pablo Picasso", "Vincent van Gogh", "Salvador Dalí", "Claude Monet"], correct: 1},
-            {category: "📚 Literature", q: "Who wrote '1984'?", options: ["Aldous Huxley", "George Orwell", "Ray Bradbury", "Isaac Asimov"], correct: 1},
-            {category: "📚 Literature", q: "What is the first book in the Lord of the Rings series?", options: ["The Two Towers", "The Fellowship of the Ring", "The Return of the King", "The Hobbit"], correct: 1},
-            {category: "📚 Literature", q: "Who painted the Mona Lisa?", options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], correct: 1},
-            {category: "📚 Literature", q: "Which Shakespeare play features the character Hamlet?", options: ["Macbeth", "Othello", "King Lear", "Hamlet"], correct: 3},
-            
-            // Random Fun Facts (10 questions)
-            {category: "🎲 Fun Facts", q: "What is the only mammal capable of true flight?", options: ["Flying squirrel", "Bat", "Sugar glider", "Flying lemur"], correct: 1},
-            {category: "🎲 Fun Facts", q: "Which fruit was once considered poisonous by Europeans?", options: ["Potato", "Tomato", "Corn", "Pumpkin"], correct: 1},
-            {category: "🎲 Fun Facts", q: "What color is a giraffe's tongue?", options: ["Pink", "Red", "Blue", "Purple"], correct: 2},
-            {category: "🎲 Fun Facts", q: "How many teeth does an adult human typically have?", options: ["28", "30", "32", "34"], correct: 2},
-            {category: "🎲 Fun Facts", q: "Which planet rains diamonds?", options: ["Jupiter", "Saturn", "Neptune", "Uranus"], correct: 2},
-            {category: "🎲 Fun Facts", q: "What is the fastest land animal?", options: ["Lion", "Horse", "Cheetah", "Gazelle"], correct: 2},
-            {category: "🎲 Fun Facts", q: "How many years can a snail sleep?", options: ["1", "2", "3", "5"], correct: 2},
-            {category: "🎲 Fun Facts", q: "What percentage of the human brain is water?", options: ["60%", "73%", "80%", "85%"], correct: 1},
-            {category: "🎲 Fun Facts", q: "Which animal has three hearts?", options: ["Elephant", "Whale", "Octopus", "Giraffe"], correct: 2},
-            {category: "🎲 Fun Facts", q: "What is the most abundant element in the universe?", options: ["Oxygen", "Carbon", "Hydrogen", "Helium"], correct: 2},
-            
-            // Music & Entertainment (10 questions)
-            {category: "🎵 Music", q: "How many strings does a standard guitar have?", options: ["4", "5", "6", "7"], correct: 2},
-            {category: "🎵 Music", q: "Which instrument has 88 keys?", options: ["Organ", "Piano", "Harpsichord", "Accordion"], correct: 1},
-            {category: "🎵 Music", q: "What does the musical term 'forte' mean?", options: ["Soft", "Fast", "Loud", "Slow"], correct: 2},
-            {category: "🎵 Music", q: "Which band released 'Bohemian Rhapsody'?", options: ["The Beatles", "Led Zeppelin", "Queen", "The Rolling Stones"], correct: 2},
-            {category: "🎵 Music", q: "How many beats are in 4/4 time?", options: ["3", "4", "6", "8"], correct: 1},
-            {category: "🎵 Music", q: "Which composer wrote 'The Four Seasons'?", options: ["Bach", "Mozart", "Vivaldi", "Beethoven"], correct: 2},
-            {category: "🎵 Music", q: "What is the highest singing voice type?", options: ["Alto", "Soprano", "Tenor", "Bass"], correct: 1},
-            {category: "🎵 Music", q: "Which instrument is Yo-Yo Ma famous for playing?", options: ["Violin", "Piano", "Cello", "Viola"], correct: 2},
-            {category: "🎵 Music", q: "How many lines are on a musical staff?", options: ["4", "5", "6", "7"], correct: 1},
-            {category: "🎵 Music", q: "Which country is famous for the tango dance?", options: ["Spain", "Brazil", "Argentina", "Italy"], correct: 2},
-            
-            // Mathematics & Logic (10 questions)
-            {category: "🔢 Math", q: "What is 7 × 8?", options: ["54", "56", "64", "48"], correct: 1},
-            {category: "🔢 Math", q: "What is the value of Pi to 2 decimal places?", options: ["3.14", "3.15", "3.16", "3.13"], correct: 0},
-            {category: "🔢 Math", q: "How many sides does a hexagon have?", options: ["5", "6", "7", "8"], correct: 1},
-            {category: "🔢 Math", q: "What is the square root of 144?", options: ["11", "12", "13", "14"], correct: 1},
-            {category: "🔢 Math", q: "What comes next: 2, 4, 8, 16, ?", options: ["24", "32", "20", "28"], correct: 1},
-            {category: "🔢 Math", q: "What is 15% of 200?", options: ["25", "30", "35", "40"], correct: 1},
-            {category: "🔢 Math", q: "What is the sum of angles in a triangle?", options: ["90 degrees", "180 degrees", "270 degrees", "360 degrees"], correct: 1},
-            {category: "🔢 Math", q: "What is 9 squared?", options: ["18", "72", "81", "99"], correct: 2},
-            {category: "🔢 Math", q: "What is the next prime number after 7?", options: ["9", "10", "11", "12"], correct: 2},
-            {category: "🔢 Math", q: "How many seconds are in an hour?", options: ["3000", "3600", "3660", "4000"], correct: 1},
-            
-            // Languages & Culture (10 questions)
-            {category: "🌐 Language", q: "What is the most spoken language in the world by native speakers?", options: ["English", "Mandarin Chinese", "Spanish", "Hindi"], correct: 1},
-            {category: "🌐 Language", q: "How do you say 'Hello' in Spanish?", options: ["Bonjour", "Hola", "Ciao", "Guten Tag"], correct: 1},
-            {category: "🌐 Language", q: "Which language has the most words?", options: ["English", "German", "French", "Japanese"], correct: 0},
-            {category: "🌐 Language", q: "What does 'Sayonara' mean in English?", options: ["Hello", "Thank you", "Goodbye", "Please"], correct: 2},
-            {category: "🌐 Language", q: "Which language uses Cyrillic script?", options: ["Greek", "Russian", "Arabic", "Hindi"], correct: 1},
-            {category: "🌐 Language", q: "What does 'Bonjour' mean in English?", options: ["Good evening", "Good morning", "Hello/Good day", "Goodbye"], correct: 2},
-            {category: "🌐 Language", q: "How do you say 'Thank you' in Japanese?", options: ["Konnichiwa", "Sayonara", "Arigatou", "Sumimasen"], correct: 2},
-            {category: "🌐 Language", q: "Which country has the most official languages?", options: ["India", "South Africa", "Switzerland", "Canada"], correct: 1},
-            {category: "🌐 Language", q: "What does 'Auf Wiedersehen' mean in English?", options: ["Hello", "Goodbye", "Thank you", "Please"], correct: 1},
-            
-            // Mythology & Legends (10 questions)
-            {category: "⚡ Mythology", q: "Who is the king of the gods in Greek mythology?", options: ["Poseidon", "Hades", "Zeus", "Apollo"], correct: 2},
-            {category: "⚡ Mythology", q: "What creature is half man, half horse?", options: ["Minotaur", "Centaur", "Griffin", "Phoenix"], correct: 1},
-            {category: "⚡ Mythology", q: "In Norse mythology, what is the name of Thor's hammer?", options: ["Gungnir", "Mjolnir", "Gram", "Laevateinn"], correct: 1},
-            {category: "⚡ Mythology", q: "Who opened the box that released evils into the world?", options: ["Pandora", "Persephone", "Athena", "Aphrodite"], correct: 0},
-            {category: "⚡ Mythology", q: "What type of creature is a Phoenix?", options: ["Dragon", "Bird", "Lion", "Snake"], correct: 1},
-            {category: "⚡ Mythology", q: "In Greek mythology, who is the god of the sea?", options: ["Zeus", "Hades", "Poseidon", "Apollo"], correct: 2},
-            {category: "⚡ Mythology", q: "What is the name of Odin's eight-legged horse in Norse mythology?", options: ["Sleipnir", "Fenrir", "Jormungandr", "Huginn"], correct: 0},
-            {category: "⚡ Mythology", q: "Who is the goddess of wisdom in Greek mythology?", options: ["Athena", "Aphrodite", "Artemis", "Hera"], correct: 0},
-            {category: "⚡ Mythology", q: "What is the name of the tree that connects the nine worlds in Norse mythology?", options: ["Yggdrasil", "Asgard", "Midgard", "Bifrost"], correct: 0},
-            {category: "⚡ Mythology", q: "In Roman mythology, who is the equivalent of the Greek god Zeus?", options: ["Mars", "Jupiter", "Neptune", "Mercury"], correct: 1},
-            
-            // More Random & Weird Facts (10 questions)
-            {category: "🤯 Weird Facts", q: "What can't penguins taste?", options: ["Sweet", "Sour", "Bitter", "Salty"], correct: 0},
-            {category: "🤯 Weird Facts", q: "Which body part continues to grow throughout your life?", options: ["Eyes", "Brain", "Nose and ears", "Heart"], correct: 2},
-            {category: "🤯 Weird Facts", q: "How many times does a hummingbird's heart beat per minute?", options: ["200", "600", "1000", "1200"], correct: 3},
-            {category: "🤯 Weird Facts", q: "What is the fear of clowns called?", options: ["Coulrophobia", "Arachnophobia", "Claustrophobia", "Acrophobia"], correct: 0},
-            {category: "🤯 Weird Facts", q: "Which sense is most closely linked to memory?", options: ["Sight", "Sound", "Smell", "Touch"], correct: 2},
-            {category: "🤯 Weird Facts", q: "What percentage of your body weight is your brain?", options: ["1%", "2%", "5%", "10%"], correct: 1},
-            {category: "🤯 Weird Facts", q: "How many times can you fold a piece of paper in half?", options: ["5-6", "7-8", "10-12", "Unlimited"], correct: 1},
-            {category: "🤯 Weird Facts", q: "What is the loudest animal on Earth?", options: ["Elephant", "Lion", "Blue Whale", "Howler Monkey"], correct: 2},
-            {category: "🤯 Weird Facts", q: "How many muscles does it take to smile?", options: ["12", "17", "25", "43"], correct: 1},
-            {category: "🤯 Weird Facts", q: "What is the only food that never expires?", options: ["Salt", "Honey", "Rice", "Pasta"], correct: 1},
-            
-            // Games & Puzzles (10 questions)
-            {category: "🎮 Games", q: "In chess, which piece can only move diagonally?", options: ["Rook", "Knight", "Bishop", "Queen"], correct: 2},
-            {category: "🎮 Games", q: "How many dots are on a standard die?", options: ["18", "21", "24", "27"], correct: 1},
-            {category: "🎮 Games", q: "In Monopoly, how much money do you collect for passing GO?", options: ["$100", "$150", "$200", "$250"], correct: 2},
-            {category: "🎮 Games", q: "Which video game character is known for eating dots?", options: ["Mario", "Sonic", "Pac-Man", "Link"], correct: 2},
-            {category: "🎮 Games", q: "How many cards are in a standard deck?", options: ["50", "52", "54", "56"], correct: 1},
-            {category: "🎮 Games", q: "In Scrabble, how many points is the letter 'Z' worth?", options: ["8", "10", "12", "15"], correct: 1},
-            {category: "🎮 Games", q: "What is the highest-scoring word in Scrabble using all seven tiles?", options: ["QUIZ", "OXYPHENBUTAZONE", "QUARTZY", "ZYMURGY"], correct: 1},
-            {category: "🎮 Games", q: "In poker, what is the best possible hand?", options: ["Four of a kind", "Full house", "Royal flush", "Straight flush"], correct: 2},
-            {category: "🎮 Games", q: "How many spaces are on a standard Monopoly board?", options: ["36", "40", "44", "48"], correct: 1},
-            {category: "🎮 Games", q: "Which game console was released first?", options: ["PlayStation", "Nintendo 64", "Sega Genesis", "Atari 2600"], correct: 3},
 
-            // Global Geography & Culture (15 questions)
-{category: "🌍 World Geography", q: "Which city is known as the 'Pearl of the Orient'?", options: ["Bangkok", "Manila", "Shanghai", "Hong Kong"], correct: 3},
-{category: "🌍 World Geography", q: "Which strait separates Europe and Asia?", options: ["Gibraltar Strait", "Bosporus Strait", "Bering Strait", "Hormuz Strait"], correct: 1},
-{category: "🌍 World Geography", q: "What is the longest mountain range in the world?", options: ["Andes", "Rockies", "Himalayas", "Mid-Atlantic Ridge"], correct: 0},
-{category: "🌍 World Geography", q: "Which European country is famous for its fjords?", options: ["Sweden", "Denmark", "Finland", "Norway"], correct: 3},
-{category: "🌍 World Geography", q: "What is the highest waterfall in the world?", options: ["Niagara Falls", "Angel Falls", "Victoria Falls", "Iguazu Falls"], correct: 1},
-{category: "🌍 World Geography", q: "Which ocean surrounds the Maldives?", options: ["Pacific Ocean", "Indian Ocean", "Atlantic Ocean", "Arctic Ocean"], correct: 1},
-{category: "🌍 World Geography", q: "Which country is the largest producer of coffee in the world?", options: ["Vietnam", "Colombia", "Brazil", "Ethiopia"], correct: 2},
-{category: "🌍 World Geography", q: "What cape sits at the southern tip of Africa?", options: ["Cape Horn", "Cape Verde", "Cape of Good Hope", "Cape Cod"], correct: 2},
-{category: "🌍 World Geography", q: "Which city is called the 'Gateway to India'?", options: ["Delhi", "Mumbai", "Chennai", "Kolkata"], correct: 1},
-{category: "🌍 World Geography", q: "What is the largest island in the Mediterranean Sea?", options: ["Sardinia", "Sicily", "Cyprus", "Corsica"], correct: 1},
-{category: "🌍 World Geography", q: "Which river flows through the Grand Canyon?", options: ["Colorado River", "Mississippi River", "Rio Grande", "Columbia River"], correct: 0},
-{category: "🌍 World Geography", q: "What do you call a cluster of islands?", options: ["Peninsula", "Archipelago", "Atoll", "Strait"], correct: 1},
-{category: "🌍 World Geography", q: "Which country has 11 time zones?", options: ["United States", "China", "Russia", "Canada"], correct: 2},
-{category: "🌍 World Geography", q: "What is the driest continent on Earth?", options: ["Africa", "Australia", "Antarctica", "Asia"], correct: 2},
-{category: "🌍 World Geography", q: "Which sea is the saltiest in the world?", options: ["Dead Sea", "Red Sea", "Caspian Sea", "Mediterranean Sea"], correct: 0},
-
-// World History & Culture (15 questions)
+            // World History & Culture (15 questions)
 {category: "📜 World History", q: "In which year was the Magna Carta signed?", options: ["1066", "1215", "1492", "1689"], correct: 1},
 {category: "📜 World History", q: "Which country was divided by the Berlin Wall?", options: ["France", "Germany", "Austria", "Poland"], correct: 1},
 {category: "📜 World History", q: "In which country did the Chernobyl nuclear disaster occur?", options: ["Russia", "Ukraine", "Belarus", "Lithuania"], correct: 1},
@@ -1388,15 +1216,221 @@ document.addEventListener('DOMContentLoaded', setupInfoButton);
 {category: "🔬 Hard Science", q: "Which type of blood vessel has the thickest muscular wall?", options: ["Veins", "Capillaries", "Arteries", "Venules"], correct: 2},
 {category: "🔬 Hard Science", q: "Which fundamental force is responsible for radioactive decay?", options: ["Electromagnetic", "Strong Nuclear", "Weak Nuclear", "Gravitational"], correct: 2},
 {category: "🔬 Hard Science", q: "How many pairs of chromosomes are in a normal human cell?", options: ["21", "22", "23", "24"], correct: 2},
-{category: "🔬 Hard Science", q: "Which phenomenon explains why hot water can freeze faster than cold water?", options: ["Leidenfrost Effect", "Mpemba Effect", "Doppler Effect", "Bernoulli Effect"], correct: 1},
+{category: "🔬 Hard Science", q: "Which phenomenon explains why hot water can freeze faster than cold water?", options: ["Leidenfrost Effect", "Doppler Effect", "Bernoulli Effect", "Mpemba Effect"], correct: 3},
 {category: "🔬 Hard Science", q: "What is the pH of pure water at room temperature?", options: ["6", "7", "8", "9"], correct: 1},
 {category: "🔬 Hard Science", q: "What is the term for the minimum energy required to remove an electron from an atom?", options: ["Electron Affinity", "Ionization Energy", "Electronegativity", "Binding Energy"], correct: 1},
 {category: "🔬 Hard Science", q: "Which law states that the entropy of an isolated system never decreases?", options: ["First Law of Thermodynamics", "Second Law of Thermodynamics", "Zeroth Law of Thermodynamics", "Third Law of Thermodynamics"], correct: 1},
 {category: "🔬 Hard Science", q: "What is the name of the effect where time passes slower in stronger gravitational fields?", options: ["Doppler Effect", "Photoelectric Effect", "Gravitational Time Dilation", "Redshift Effect"], correct: 2},
 {category: "🔬 Hard Science", q: "Which organelle is responsible for protein synthesis in cells?", options: ["Golgi Apparatus", "Ribosomes", "Lysosomes", "Peroxisomes"], correct: 1},
-{category: "🔬 Hard Science", q: "What is the quantum mechanical property that prevents two fermions from occupying the same quantum state?", options: ["Heisenberg Uncertainty", "Pauli Exclusion Principle", "Wave-Particle Duality", "Quantum Entanglement"], correct: 1}
+{category: "🔬 Hard Science", q: "What is the quantum mechanical property that prevents two fermions from occupying the same quantum state?", options: ["Heisenberg Uncertainty", "Pauli Exclusion Principle", "Wave-Particle Duality", "Quantum Entanglement"], correct: 1},
 
+// Hard Questions
 
+{category: "🌡️ Science", q: "What element is the main constituent of diamonds?", options: ["Carbon", "Oxygen", "Silver", "Gold"], correct: 0},
+{category: "📜 History", q: "In what year was Ferdinand Magellan's first successful circumnavigation of the world?", options: ["1492", "1520", "1588", "1620"], correct: 1},
+{category: "🌊 Geography", q: "Which river is the second longest in the world?", options: ["Amazon", "Yangtze", "Nile", "Mississippi"], correct: 1},
+{category: "🚀 Space", q: "What year was the first man sent to space?", options: ["1957", "1961", "1969", "1975"], correct: 1},
+{category: "🌊 Geography", q: "Which sea is considered the most salty on Earth?", options: ["Red Sea", "Mediterranean Sea", "Dead Sea", "Black Sea"], correct: 2},
+{category: "🔬 Biology", q: "Which organ in the human body is responsible for the secretion of bile?", options: ["Liver", "Kidneys", "Spleen", "Stomach"], correct: 0},
+{category: "🌍 Geography", q: "Which planet is known as the 'Morning Star' or 'Evening Star'?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: 0},
+{category: "🔬 Science", q: "What is the science that studies the past of life on Earth?", options: ["Palaeontology", "Astronomy", "Anthropology", "Geology"], correct: 0},
+{category: "🔬 Biology", q: "What chemical element forms the basis of haemoglobin?", options: ["Nitrogen", "Iron", "Oxygen", "Silver"], correct: 1},
+{category: "📜 History", q: "In what year was the League of Nations founded?", options: ["1919", "1923", "1939", "1945"], correct: 0},
+{category: "🌊 Geography", q: "Which sea lies between Asia and Africa?", options: ["Caspian", "Red", "Mediterranean", "Dead"], correct: 2},
+{category: "🔬 Biology", q: "Which organ is responsible for secreting insulin?", options: ["Liver", "Kidneys", "Pancreas", "Stomach"], correct: 2},
+{category: "🎵 Music", q: "Which composer wrote 'The Four Seasons'?", options: ["Bach", "Mozart", "Vivaldi", "Beethoven"], correct: 2},
+{category: "📚 Literature", q: "Who wrote the novel '1984'?", options: ["Aldous Huxley", "George Orwell", "Ray Bradbury", "Isaac Asimov"], correct: 1},
+{category: "📜 History", q: "Who was the first woman to win a Nobel Prize?", options: ["Marie Curie", "Mother Teresa", "Jane Addams", "Bertha von Suttner"], correct: 0},
+{category: "🔬 Science", q: "What is considered the 'lung of the Earth'?", options: ["Amazon rainforest", "Sahara Desert", "Siberian Taiga", "Congo Basin"], correct: 0},
+{category: "⚽ Sports", q: "Which country has won the most FIFA World Cups?", options: ["Germany", "Argentina", "Brazil", "Italy"], correct: 2},
+{category: "🔬 Physics", q: "Which fundamental force is responsible for radioactive decay?", options: ["Electromagnetic", "Strong Nuclear", "Weak Nuclear", "Gravitational"], correct: 2},
+            
+            // Geography & Landmarks (10 questions)
+            {category: "🌍 Geography", q: "Which country is shaped like a boot?", options: ["Spain", "Italy", "Greece", "Portugal"], correct: 1},
+            {category: "🌍 Geography", q: "What is the longest river in the world?", options: ["Amazon", "Nile", "Mississippi", "Yangtze"], correct: 1},
+            {category: "🌍 Geography", q: "Mount Everest is located between which two countries?", options: ["India & China", "Nepal & China", "Nepal & India", "Bhutan & China"], correct: 1},
+            {category: "🌍 Geography", q: "Which desert is the largest in the world?", options: ["Sahara", "Gobi", "Antarctica", "Arabian"], correct: 2},
+            {category: "🌍 Geography", q: "What is the capital of Canada?", options: ["Toronto", "Vancouver", "Montreal", "Ottawa"], correct: 3},
+            {category: "🌍 Geography", q: "Which ocean is the smallest?", options: ["Arctic", "Indian", "Atlantic", "Pacific"], correct: 0},
+            {category: "🌍 Geography", q: "The Statue of Liberty was a gift from which country?", options: ["England", "France", "Spain", "Germany"], correct: 1},
+            {category: "🌍 Geography", q: "Which European city is known as the 'City of Canals'?", options: ["Amsterdam", "Venice", "Bruges", "Stockholm"], correct: 1},
+            {category: "🌍 Geography", q: "What is the smallest country in the world?", options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], correct: 1},
+            {category: "🌍 Geography", q: "Which mountain range contains Mount Everest?", options: ["Andes", "Alps", "Himalayas", "Rockies"], correct: 2},
+            {category: "🌍 Geography", q: "Which country has the largest coastline in the world?", options: ["USA", "Russia", "Australia", "Canada"], correct: 0},
+            
+            // Food & Cuisine (10 questions)
+            {category: "🍕 Food", q: "What spice is derived from the Crocus flower?", options: ["Turmeric", "Saffron", "Paprika", "Cumin"], correct: 1},
+            {category: "🍕 Food", q: "Which fruit is known as the 'king of fruits'?", options: ["Mango", "Durian", "Pineapple", "Dragon fruit"], correct: 0},
+            {category: "🍕 Food", q: "What is the main ingredient in guacamole?", options: ["Tomato", "Avocado", "Pepper", "Onion"], correct: 1},
+            {category: "🍕 Food", q: "Which country drinks the most coffee per capita?", options: ["Brazil", "Italy", "Finland", "Colombia"], correct: 2},
+            {category: "🍕 Food", q: "What type of pastry is used to make profiteroles?", options: ["Puff pastry", "Shortcrust pastry", "Choux pastry", "Filo pastry"], correct: 2},
+            {category: "🍕 Food", q: "Which herb is traditionally used in pesto?", options: ["Oregano", "Basil", "Thyme", "Rosemary"], correct: 1},
+            {category: "🍕 Food", q: "What is the main ingredient in hummus?", options: ["Lentils", "Chickpeas", "Black beans", "Kidney beans"], correct: 1},
+            {category: "🍕 Food", q: "Which country originated sushi?", options: ["China", "Japan", "Korea", "Thailand"], correct: 1},
+            {category: "🍕 Food", q: "What is the hottest part of a chili pepper?", options: ["Skin", "Seeds", "Flesh", "Stem"], correct: 1},
+            
+            // Technology & Innovation (10 questions)
+            {category: "💻 Technology", q: "What does 'GPU' stand for?", options: ["Central Processing Unit", "Graphics Processing Unit", "Graphical Program Unit", "Game Program Unit"], correct: 1},
+            {category: "💻 Technology", q: "What does 'Wi-Fi' stand for?", options: ["Wireless Fidelity", "Wireless Frequency", "Wide Fidelity", "It doesn't stand for anything"], correct: 3},
+            
+            // Animals & Nature (10 questions)
+            {category: "🦁 Animals", q: "How many hearts does an octopus have?", options: ["1", "2", "3", "4"], correct: 2},
+            {category: "🦁 Animals", q: "Which bird can fly backwards?", options: ["Eagle", "Sparrow", "Hummingbird", "Robin"], correct: 2},
+            {category: "🦁 Animals", q: "What is a group of lions called?", options: ["Pack", "Herd", "Pride", "Flock"], correct: 2},
+            {category: "🦁 Animals", q: "Which mammal is known to have the most powerful bite?", options: ["Lion", "Shark", "Hippo", "Crocodile"], correct: 2},
+            {category: "🦁 Animals", q: "Which animal can sleep for up to 22 hours a day?", options: ["Sloth", "Koala", "Bear", "Cat"], correct: 1},
+            {category: "🦁 Animals", q: "What is the largest species of shark?", options: ["Great White", "Tiger Shark", "Whale Shark", "Hammerhead"], correct: 2},
+            {category: "🦁 Animals", q: "Which animal has the longest lifespan?", options: ["Elephant", "Tortoise", "Whale", "Parrot"], correct: 1},
+            {category: "🦁 Animals", q: "What is the fastest marine animal?", options: ["Dolphin", "Sailfish", "Tuna", "Marlin"], correct: 1},
+            
+            // Space & Universe (10 questions)
+            {category: "🚀 Space", q: "Which planet is closest to the Sun?", options: ["Venus", "Mercury", "Earth", "Mars"], correct: 1},
+            {category: "🚀 Space", q: "How many moons does Mars have?", options: ["0", "1", "2", "3"], correct: 2},
+            {category: "🚀 Space", q: "Who was the first person in space?", options: ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "John Glenn"], correct: 2},
+            {category: "🚀 Space", q: "What is the hottest planet in our solar system?", options: ["Mercury", "Venus", "Mars", "Jupiter"], correct: 1},
+            {category: "🚀 Space", q: "Which space agency landed the first humans on the moon?", options: ["ESA", "NASA", "Roscosmos", "ISRO"], correct: 1},
+            
+            // Literature & Arts (10 questions)
+            {category: "📚 Literature", q: "Who wrote 'Romeo and Juliet'?", options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"], correct: 1},
+            {category: "📚 Literature", q: "Which book begins with 'It was the best of times, it was the worst of times'?", options: ["Great Expectations", "A Tale of Two Cities", "Oliver Twist", "David Copperfield"], correct: 1},
+            {category: "📚 Literature", q: "Who painted 'The Starry Night'?", options: ["Pablo Picasso", "Vincent van Gogh", "Leonardo da Vinci", "Claude Monet"], correct: 1},
+            {category: "📚 Literature", q: "In which city is Shakespeare's Romeo and Juliet set?", options: ["Venice", "Florence", "Verona", "Rome"], correct: 2},
+            {category: "📚 Literature", q: "Who wrote the Harry Potter series?", options: ["J.R.R. Tolkien", "J.K. Rowling", "C.S. Lewis", "Roald Dahl"], correct: 1},
+            {category: "📚 Literature", q: "Which artist cut off his own ear?", options: ["Pablo Picasso", "Vincent van Gogh", "Salvador Dalí", "Claude Monet"], correct: 1},
+            {category: "📚 Literature", q: "What is the first book in the Lord of the Rings series?", options: ["The Two Towers", "The Fellowship of the Ring", "The Return of the King", "The Hobbit"], correct: 1},
+            {category: "📚 Literature", q: "Who painted the Mona Lisa?", options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], correct: 1},
+            {category: "📚 Literature", q: "Which Shakespeare play features the character Hamlet?", options: ["Macbeth", "Othello", "King Lear", "Hamlet"], correct: 3},
+            
+            // Random Fun Facts (10 questions)
+            {category: "🎲 Fun Facts", q: "What is the only mammal capable of true flight?", options: ["Flying squirrel", "Bat", "Sugar glider", "Flying lemur"], correct: 1},
+            {category: "🎲 Fun Facts", q: "Which fruit was once considered poisonous by Europeans?", options: ["Potato", "Tomato", "Corn", "Pumpkin"], correct: 1},
+            {category: "🎲 Fun Facts", q: "What color is a giraffe's tongue?", options: ["Pink", "Red", "Blue", "Purple"], correct: 2},
+            {category: "🎲 Fun Facts", q: "How many teeth does an adult human typically have?", options: ["28", "30", "32", "34"], correct: 2},
+            {category: "🎲 Fun Facts", q: "Which planet rains diamonds?", options: ["Jupiter", "Saturn", "Neptune", "Uranus"], correct: 2},
+            {category: "🎲 Fun Facts", q: "What is the fastest land animal?", options: ["Lion", "Horse", "Cheetah", "Gazelle"], correct: 2},
+            {category: "🎲 Fun Facts", q: "How many years can a snail sleep?", options: ["1", "2", "3", "5"], correct: 2},
+            {category: "🎲 Fun Facts", q: "What percentage of the human brain is water?", options: ["60%", "73%", "80%", "85%"], correct: 1},
+            {category: "🎲 Fun Facts", q: "Which animal has three hearts?", options: ["Elephant", "Whale", "Octopus", "Giraffe"], correct: 2},
+            {category: "🎲 Fun Facts", q: "What is the most abundant element in the universe?", options: ["Oxygen", "Carbon", "Hydrogen", "Helium"], correct: 2},
+            
+            // Music & Entertainment (10 questions)
+            {category: "🎵 Music", q: "How many strings does a standard guitar have?", options: ["4", "5", "7", "6"], correct: 3},
+            {category: "🎵 Music", q: "Which instrument has 88 keys?", options: ["Organ", "Piano", "Harpsichord", "Accordion"], correct: 1},
+            {category: "🎵 Music", q: "What does the musical term 'forte' mean?", options: ["Soft", "Fast", "Loud", "Slow"], correct: 2},
+            {category: "🎵 Music", q: "Which band released 'Bohemian Rhapsody'?", options: ["The Beatles", "Led Zeppelin", "Queen", "The Rolling Stones"], correct: 2},
+            {category: "🎵 Music", q: "How many beats are in 4/4 time, in music?", options: ["3", "4", "6", "8"], correct: 1},
+            {category: "🎵 Music", q: "Which composer wrote 'The Four Seasons'?", options: ["Bach", "Mozart", "Vivaldi", "Beethoven"], correct: 2},
+            {category: "🎵 Music", q: "What is the highest singing voice type?", options: ["Alto", "Soprano", "Tenor", "Bass"], correct: 1},
+            {category: "🎵 Music", q: "Which instrument is Yo-Yo Ma famous for playing?", options: ["Violin", "Piano", "Cello", "Viola"], correct: 2},
+            {category: "🎵 Music", q: "How many lines are on a musical staff?", options: ["4", "5", "6", "7"], correct: 1},
+            {category: "🎵 Music", q: "Which country is famous for the tango dance?", options: ["Spain", "Brazil", "Argentina", "Italy"], correct: 2},
+
+             // History & World Events (10 questions)
+            {category: "📜 History", q: "Who was the first woman to win a Nobel Prize?", options: ["Marie Curie", "Mother Teresa", "Jane Addams", "Bertha von Suttner"], correct: 0},
+            {category: "📜 History", q: "The Titanic sank in which year?", options: ["1910", "1912", "1914", "1916"], correct: 1},
+            {category: "📜 History", q: "Which ancient wonder was located in Babylon?", options: ["Colossus of Rhodes", "Hanging Gardens", "Temple of Artemis", "Mausoleum"], correct: 1},
+            {category: "📜 History", q: "Who invented the telephone?", options: ["Thomas Edison", "Nikola Tesla", "Alexander Graham Bell", "Benjamin Franklin"], correct: 2},
+            {category: "📜 History", q: "The Great Wall of China was built to keep out which group?", options: ["Romans", "Mongols", "Japanese", "Vikings"], correct: 1},
+            {category: "📜 History", q: "Which empire was led by Genghis Khan?", options: ["Roman", "Ottoman", "Mongol", "Byzantine"], correct: 2},
+            {category: "📜 History", q: "In which year did the Berlin Wall fall?", options: ["1987", "1989", "1991", "1993"], correct: 1},
+            {category: "📜 History", q: "Who was the first person to walk on the moon?", options: ["Buzz Aldrin", "Neil Armstrong", "Michael Collins", "Alan Shepard"], correct: 1},
+            {category: "📜 History", q: "Which war was fought from 1914 to 1918?", options: ["World War II", "World War I", "Korean War", "Vietnam War"], correct: 1},
+            {category: "📜 History", q: "Who painted the ceiling of the Sistine Chapel?", options: ["Leonardo da Vinci", "Raphael", "Michelangelo", "Donatello"], correct: 2},
+            
+            // Sports & Games (10 questions)
+            {category: "⚽ Sports", q: "How many minutes are in a rugby match?", options: ["80", "90", "70", "60"], correct: 0},
+            {category: "⚽ Sports", q: "Which country has won the most FIFA World Cups?", options: ["Germany", "Argentina", "Brazil", "Italy"], correct: 2},
+            {category: "⚽ Sports", q: "In golf, what is a score of one under par called?", options: ["Eagle", "Birdie", "Bogey", "Albatross"], correct: 1},
+            {category: "⚽ Sports", q: "How many players are in a volleyball team on court?", options: ["5", "6", "7", "8"], correct: 1},
+            {category: "⚽ Sports", q: "In which sport would you perform a slam dunk?", options: ["Volleyball", "Basketball", "Tennis", "Badminton"], correct: 1},
+            {category: "⚽ Sports", q: "How many holes are there in a full round of golf?", options: ["16", "18", "20", "22"], correct: 1},
+            {category: "⚽ Sports", q: "Which country hosted the 2016 Summer Olympics?", options: ["China", "UK", "Brazil", "Russia"], correct: 2},
+            {category: "⚽ Sports", q: "What is the maximum score possible in ten-pin bowling?", options: ["200", "250", "300", "350"], correct: 2},
+            {category: "⚽ Sports", q: "In American football, how many points is a touchdown worth?", options: ["3", "6", "7", "8"], correct: 1},
+            
+            // Science & Nature (10 questions)
+            {category: "🔬 Science", q: "What is the hardest natural substance on Earth?", options: ["Gold", "Iron", "Diamond", "Platinum"], correct: 2},
+            {category: "🔬 Science", q: "How many bones do sharks have?", options: ["Over 200", "About 100", "Zero", "Around 50"], correct: 2},
+            {category: "🔬 Science", q: "What gas makes up most of Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], correct: 2},
+            {category: "🔬 Science", q: "How many sides does a snowflake have?", options: ["4", "5", "6", "8"], correct: 2},
+            {category: "🔬 Science", q: "What is the chemical formula for table salt?", options: ["NaCl", "H2O", "CO2", "CaCl2"], correct: 0},
+            {category: "🔬 Science", q: "Which planet has the most moons?", options: ["Jupiter", "Saturn", "Neptune", "Uranus"], correct: 1},
+            {category: "🔬 Science", q: "What type of animal is a Komodo dragon?", options: ["Snake", "Lizard", "Crocodile", "Dinosaur"], correct: 1},
+            {category: "🔬 Science", q: "What is the speed of light in a vacuum?", options: ["299,792,458 m/s", "300,000,000 m/s", "250,000,000 m/s", "350,000,000 m/s"], correct: 0},
+            {category: "🔬 Science", q: "Which blood type is known as the universal donor?", options: ["A+", "B+", "AB+", "O-"], correct: 3},
+            {category: "🔬 Science", q: "What is the smallest unit of matter?", options: ["Molecule", "Atom", "Proton", "Electron"], correct: 1},
+            
+            // Mathematics & Logic (10 questions)
+            {category: "🔢 Math", q: "What is 70 × 80?", options: ["540", "560", "640", "480"], correct: 1},
+            {category: "🔢 Math", q: "What is Pi upto 3 decimal places?", options: ["3.145", "3.154", "3.227", "3.142"], correct: 3},
+            {category: "🔢 Math", q: "How many sides does a hexagon have?", options: ["5", "6", "7", "8"], correct: 1},
+            {category: "🔢 Math", q: "What is the square root of 144?", options: ["11", "14", "13", "12"], correct: 3},
+            {category: "🔢 Math", q: "What is 15% of 200?", options: ["25", "30", "35", "40"], correct: 1},
+            {category: "🔢 Math", q: "What is the sum of angles in a triangle?", options: ["90 degrees", "120 degrees", "270 degrees", "180 degrees"], correct: 3},
+            {category: "🔢 Math", q: "What is 9 squared?", options: ["18", "72", "81", "99"], correct: 2},
+            {category: "🔢 Math", q: "What is the next prime number after 7?", options: ["9", "10", "11", "12"], correct: 2},
+            {category: "🔢 Math", q: "How many seconds are in an hour?", options: ["3000", "3006", "3660", "3600"], correct: 3},
+            
+            // Languages & Culture (10 questions)
+            {category: "🌐 Language", q: "What is the most spoken language in the world by native speakers?", options: ["English", "Mandarin Chinese", "Spanish", "Hindi"], correct: 1},
+            {category: "🌐 Language", q: "What does 'Sayonara' mean in English?", options: ["Hello", "Thank you", "Goodbye", "Please"], correct: 2},
+            {category: "🌐 Language", q: "Which language uses Cyrillic script?", options: ["Greek", "Russian", "Arabic", "Hindi"], correct: 1},
+            {category: "🌐 Language", q: "How do you say 'Thank you' in Japanese?", options: ["Konnichiwa", "Sayonara", "Arigatou", "Sumimasen"], correct: 2},
+            {category: "🌐 Language", q: "Which country has the most official languages?", options: ["India", "South Africa", "Switzerland", "Canada"], correct: 1},
+            {category: "🌐 Language", q: "What does 'Auf Wiedersehen' mean in English?", options: ["Hello", "Goodbye", "Thank you", "Please"], correct: 1},
+            
+            // Mythology & Legends (10 questions)
+            {category: "⚡ Mythology", q: "Who is the king of the gods in Greek mythology?", options: ["Poseidon", "Hades", "Apollo", "Zeus"], correct: 3},
+            {category: "⚡ Mythology", q: "What creature is half man, half horse?", options: ["Minotaur", "Centaur", "Griffin", "Phoenix"], correct: 1},
+            {category: "⚡ Mythology", q: "In Norse mythology, what is the name of Thor's hammer?", options: ["Gungnir", "Mjolnir", "Gram", "Laevateinn"], correct: 1},
+            {category: "⚡ Mythology", q: "Who opened the box that released evils into the world?", options: ["Pandora", "Persephone", "Athena", "Aphrodite"], correct: 0},
+            {category: "⚡ Mythology", q: "What type of creature is a Phoenix?", options: ["Dragon", "Bird", "Lion", "Snake"], correct: 1},
+            {category: "⚡ Mythology", q: "In Greek mythology, who is the god of the sea?", options: ["Zeus", "Hades", "Poseidon", "Apollo"], correct: 2},
+            {category: "⚡ Mythology", q: "What is the name of Odin's eight-legged horse in Norse mythology?", options: ["Sleipnir", "Fenrir", "Jormungandr", "Huginn"], correct: 0},
+            {category: "⚡ Mythology", q: "Who is the goddess of wisdom in Greek mythology?", options: ["Athena", "Aphrodite", "Artemis", "Hera"], correct: 0},
+            {category: "⚡ Mythology", q: "What is the name of the tree that connects the nine worlds in Norse mythology?", options: ["Yggdrasil", "Asgard", "Midgard", "Bifrost"], correct: 0},
+            {category: "⚡ Mythology", q: "In Roman mythology, who is the equivalent to the Greek god Zeus?", options: ["Mars", "Jupiter", "Neptune", "Mercury"], correct: 1},
+            
+            // More Random & Weird Facts (10 questions)
+            {category: "🤯 Weird Facts", q: "What can't penguins taste?", options: ["Sweet", "Sour", "Bitter", "Salty"], correct: 0},
+            {category: "🤯 Weird Facts", q: "Which body part continues to grow throughout your life?", options: ["Eyes", "Brain", "Nose and ears", "Heart"], correct: 2},
+            {category: "🤯 Weird Facts", q: "How many times does a hummingbird's heart beat per minute?", options: ["200", "600", "1000", "1200"], correct: 3},
+            {category: "🤯 Weird Facts", q: "What is the fear of clowns called?", options: ["Coulrophobia", "Arachnophobia", "Claustrophobia", "Acrophobia"], correct: 0},
+            {category: "🤯 Weird Facts", q: "Which sense is most closely linked to memory?", options: ["Sight", "Sound", "Smell", "Touch"], correct: 2},
+            {category: "🤯 Weird Facts", q: "What percentage of your body weight is your brain?", options: ["1%", "3%", "5%", "2%"], correct: 3},
+            {category: "🤯 Weird Facts", q: "How many times can you fold a piece of paper in half?", options: ["5-6", "7-8", "10-12", "Unlimited"], correct: 1},
+            {category: "🤯 Weird Facts", q: "What is the loudest animal on Earth?", options: ["Elephant", "Lion", "Blue Whale", "Howler Monkey"], correct: 2},
+            {category: "🤯 Weird Facts", q: "How many muscles does it take to smile?", options: ["12", "17", "25", "43"], correct: 1},
+            {category: "🤯 Weird Facts", q: "What is the only food that never expires?", options: ["Salt", "Honey", "Rice", "Pasta"], correct: 1},
+            
+            // Games & Puzzles (10 questions)
+            {category: "🎮 Games", q: "In chess, which piece can only move diagonally?", options: ["Rook", "Knight", "Bishop", "Queen"], correct: 2},
+            {category: "🎮 Games", q: "How many dots are on a standard die?", options: ["18", "21", "24", "27"], correct: 1},
+            {category: "🎮 Games", q: "In Monopoly, how much money do you collect for passing GO?", options: ["$100", "$150", "$200", "$250"], correct: 2},
+            {category: "🎮 Games", q: "Which video game character is known for eating dots?", options: ["Mario", "Sonic", "Link", "Pac-Man"], correct: 3},
+            {category: "🎮 Games", q: "How many cards are in a standard deck?", options: ["50", "52", "54", "56"], correct: 1},
+            {category: "🎮 Games", q: "In Scrabble, how many points is the letter 'Z' worth?", options: ["8", "10", "12", "15"], correct: 1},
+            {category: "🎮 Games", q: "What is the highest-scoring word in Scrabble using all seven tiles?", options: ["QUIZ", "OXYPHENBUTAZONE", "QUARTZY", "ZYMURGY"], correct: 1},
+            {category: "🎮 Games", q: "In poker, what is the best possible hand?", options: ["Four of a kind", "Full house", "Royal flush", "Straight flush"], correct: 2},
+            {category: "🎮 Games", q: "How many spaces are on a standard Monopoly board?", options: ["36", "40", "44", "48"], correct: 1},
+            {category: "🎮 Games", q: "Which game console was released first?", options: ["PlayStation", "Nintendo 64", "Sega Genesis", "Atari 2600"], correct: 3},
+
+            // Global Geography & Culture (15 questions)
+{category: "🌍 World Geography", q: "Which city is known as the 'Pearl of the Orient'?", options: ["Bangkok", "Manila", "Shanghai", "Hong Kong"], correct: 3},
+{category: "🌍 World Geography", q: "Which strait separates Europe and Asia?", options: ["Gibraltar Strait", "Bosporus Strait", "Bering Strait", "Hormuz Strait"], correct: 1},
+{category: "🌍 World Geography", q: "What is the longest mountain range in the world?", options: ["Andes", "Rockies", "Himalayas", "Mid-Atlantic Ridge"], correct: 0},
+{category: "🌍 World Geography", q: "Which European country is famous for its fjords?", options: ["Sweden", "Denmark", "Finland", "Norway"], correct: 3},
+{category: "🌍 World Geography", q: "What is the highest waterfall in the world?", options: ["Niagara Falls", "Angel Falls", "Victoria Falls", "Iguazu Falls"], correct: 1},
+{category: "🌍 World Geography", q: "Which ocean surrounds the Maldives?", options: ["Pacific Ocean", "Indian Ocean", "Atlantic Ocean", "Arctic Ocean"], correct: 1},
+{category: "🌍 World Geography", q: "Which country is the largest producer of coffee in the world?", options: ["Vietnam", "Colombia", "Brazil", "Ethiopia"], correct: 2},
+{category: "🌍 World Geography", q: "What cape sits at the southern tip of Africa?", options: ["Cape Horn", "Cape Verde", "Cape of Good Hope", "Cape Cod"], correct: 2},
+{category: "🌍 World Geography", q: "Which city is called the 'Gateway to India'?", options: ["Delhi", "Mumbai", "Chennai", "Kolkata"], correct: 1},
+{category: "🌍 World Geography", q: "What is the largest island in the Mediterranean Sea?", options: ["Sardinia", "Sicily", "Cyprus", "Corsica"], correct: 1},
+{category: "🌍 World Geography", q: "Which river flows through the Grand Canyon?", options: ["Colorado River", "Mississippi River", "Rio Grande", "Columbia River"], correct: 0},
+{category: "🌍 World Geography", q: "What do you call a cluster of islands?", options: ["Peninsula", "Archipelago", "Atoll", "Strait"], correct: 1},
+{category: "🌍 World Geography", q: "Which country has 11 time zones?", options: ["United States", "China", "Russia", "Canada"], correct: 2},
+{category: "🌍 World Geography", q: "What is the driest continent on Earth?", options: ["Africa", "Australia", "Antarctica", "Asia"], correct: 2},
+{category: "🌍 World Geography", q: "Which sea is the saltiest in the world?", options: ["Dead Sea", "Red Sea", "Caspian Sea", "Mediterranean Sea"], correct: 0}
         ];
         
         // Add this Fisher-Yates shuffle function
@@ -1407,19 +1441,6 @@ function fisherYatesShuffle(array) {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
-}
-
-// Replace your existing startGame() function with this:
-function startGame() {
-    selectedQuestions = fisherYatesShuffle(questionBank).slice(0, 25);
-    currentQuestion = 0;
-    score = 0;
-    
-    document.getElementById('startScreen').classList.add('hidden');
-    document.getElementById('gameScreen').classList.remove('hidden');
-    
-    startBackgroundMusic();
-    showQuestion();
 }
 
         
@@ -1452,50 +1473,71 @@ function startGame() {
             startTimer();
         }
         
-        function startTimer() {
-            timer = 30;
-            document.getElementById('timer').textContent = timer;
-            document.getElementById('timer').classList.remove('warning');
-            
-            timerInterval = setInterval(() => {
-                timer--;
-                document.getElementById('timer').textContent = timer;
-                
-                if (timer <= 10) {
-                    document.getElementById('timer').classList.add('warning');
-                }
-                
-                if (timer <= 0) {
-                    clearInterval(timerInterval);
-                    selectAnswer(-1);
-                }
-            }, 1000);
+// Fixed timer function - clears previous intervals
+function startTimer() {
+    // Always clear any existing timer first
+    clearInterval(timerInterval);
+    
+    timer = 30;
+    document.getElementById('timer').textContent = timer;
+    document.getElementById('timer').classList.remove('warning');
+    
+    timerInterval = setInterval(() => {
+        timer--;
+        document.getElementById('timer').textContent = timer;
+        
+        if (timer <= 10) {
+            document.getElementById('timer').classList.add('warning');
         }
         
-        function selectAnswer(selectedIndex) {
+        if (timer <= 0) {
             clearInterval(timerInterval);
-            
-            const q = selectedQuestions[currentQuestion];
-            const options = document.querySelectorAll('.option-btn');
-            
-            options.forEach(btn => btn.disabled = true);
-            
-            if (selectedIndex === q.correct) {
-                score += 10;
-                options[selectedIndex].classList.add('correct');
-            } else {
-                if (selectedIndex >= 0) {
-                    options[selectedIndex].classList.add('incorrect');
-                }
-                options[q.correct].classList.add('correct');
-            }
-            
-            // Quick animation - reduced from 2500ms to 1200ms
-            setTimeout(() => {
-                currentQuestion++;
-                showQuestion();
-            }, 1200);
+            selectAnswer(-1); // Time up
         }
+    }, 1000);
+}
+
+// Fixed game start function - clears all intervals
+function startGame() {
+    // Clear any existing timer intervals
+    clearInterval(timerInterval);
+    
+    selectedQuestions = fisherYatesShuffle(questionBank).slice(0, 25);
+    currentQuestion = 0;
+    score = 0;
+    
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('gameScreen').classList.remove('hidden');
+    
+    startBackgroundMusic();
+    showQuestion();
+}
+
+// Also update selectAnswer to properly clear interval
+function selectAnswer(selectedIndex) {
+    clearInterval(timerInterval); // Ensure timer is cleared
+    
+    const q = selectedQuestions[currentQuestion];
+    const options = document.querySelectorAll('.option-btn');
+    
+    options.forEach(btn => btn.disabled = true);
+    
+    if (selectedIndex === q.correct) {
+        score += 10;
+        options[selectedIndex].classList.add('correct');
+    } else {
+        if (selectedIndex >= 0) {
+            options[selectedIndex].classList.add('incorrect');
+        }
+        options[q.correct].classList.add('correct');
+    }
+    
+    setTimeout(() => {
+        currentQuestion++;
+        showQuestion();
+    }, 1200);
+}
+
         
         function showResults() {
             document.getElementById('gameScreen').classList.add('hidden');
@@ -1572,10 +1614,10 @@ function startGame() {
             } else {
                 resultHTML = `
                     <div class="results-container">
-                        <div class="results-icon">📚</div>
+                        <div class="results-icon">👻</div>
                         <h1 style="color: #e74c3c; font-size: 3em; margin-bottom: 20px;">NICE TRY!</h1>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin: 30px 0;">
-                            <div class="final-score">SCORE: ${score}/25</div>
+                            <div class="final-score">SCORE: ${score}/250</div>
                             <button onclick="takeScreenshot()" style="
                                 background: linear-gradient(135deg, #2d2d44, #3a3a5c);
                                 border: 2px solid #00d4ff;
@@ -1603,7 +1645,7 @@ function startGame() {
             resultHTML += `
                 <div style="display: flex; gap: 20px; justify-content: center; margin-top: 40px; flex-wrap: wrap;">
                     <button class="btn" onclick="playAgain()" style="background: linear-gradient(135deg, #ff6b9d, #c44569);">
-                        🔥 PLAY AGAIN
+                        🎮 PLAY AGAIN
                     </button>
                     <button class="btn" onclick="goHome()" style="background: linear-gradient(135deg, #00d4ff, #0099cc);">
                         🏠 MAIN MENU
@@ -1613,6 +1655,125 @@ function startGame() {
             
             resultsDiv.innerHTML = resultHTML;
         }
+        // Function to add share button beside snapshot icon
+function addShareButton() {
+    // Find all results containers that have the final score display
+    const finalScoreContainers = document.querySelectorAll('div[style*="display: flex"][style*="align-items: center"]');
+    
+    finalScoreContainers.forEach(container => {
+        // Check if container has final-score and snapshot button
+        if (container.querySelector('.final-score') && container.querySelector('button[title="Take Screenshot"]')) {
+            // Avoid duplicate share buttons
+            if (container.querySelector('.share-btn')) return;
+            
+            // Create share button
+            const shareBtn = document.createElement('button');
+            shareBtn.innerHTML = '💬'; // Share icon
+            shareBtn.title = 'Share your score';
+            shareBtn.className = 'share-btn';
+            shareBtn.style.cssText = `
+                background: linear-gradient(135deg, #2d2d44, #3a3a5c);
+                border: 2px solid #00d4ff;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                color: white;
+                font-size: 1.5em;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                margin-left: 6px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            `;
+            
+            // Hover effects
+            shareBtn.addEventListener('mouseenter', () => {
+                shareBtn.style.background = 'linear-gradient(135deg, #3a3a5c, #4a4a7c)';
+                shareBtn.style.transform = 'scale(1.1)';
+                shareBtn.style.boxShadow = '0 8px 20px rgba(0, 212, 255, 0.4)';
+            });
+            
+            shareBtn.addEventListener('mouseleave', () => {
+                shareBtn.style.background = 'linear-gradient(135deg, #2d2d44, #3a3a5c)';
+                shareBtn.style.transform = 'scale(1)';
+                shareBtn.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+            });
+            
+            // Share functionality
+            // Updated share functionality that includes snapshot image
+shareBtn.onclick = async () => {
+    try {
+        // Check if html2canvas is available (since you already have snapshot working)
+        if (typeof html2canvas !== 'undefined') {
+            // Capture the results screen as image (same as your snapshot function)
+            const resultsScreen = document.getElementById('resultsScreen');
+            const canvas = await html2canvas(resultsScreen);
+            
+            // Convert to blob
+            canvas.toBlob(async (blob) => {
+                const scoreText = score;
+                const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+                
+                    const shareMessage = `🎯 Hey, I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score? Try the Ultimate Quiz Challenge:\n\nhttps://roysiddhest.github.io/quizbot/ `;
+                // Create file from blob
+                const file = new File([blob], 'quizbot-score.png', { type: 'image/png' });
+                
+                // Try sharing image + text
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'QUIZBOT Challenge!',
+                        text: shareMessage
+                    });
+                } else {
+                    // Fallback: just copy text
+                    await navigator.clipboard.writeText(shareMessage);
+                    alert('📋 Score details copied to clipboard! Take a screenshot manually to share the image.');
+                }
+            });
+        } else {
+            // Fallback without image
+            const scoreText = score;
+            const percentage = Math.round((parseInt(scoreText) / 250) * 100);
+            const shareMessage = `🎯 I scored ${scoreText}/250 (${percentage}%) in QUIZBOT! 🤖\n\nCan you beat my score?\n${window.location.href}`;
+            
+            if (navigator.share) {
+                await navigator.share({
+                    title: 'QUIZBOT Challenge',
+                    text: shareMessage
+                });
+            } else {
+                await navigator.clipboard.writeText(shareMessage);
+                alert('📋 Score copied to clipboard!');
+            }
+        }
+    } catch (error) {
+        console.error('Share failed:', error);
+        alert('Unable to share. Please try again.');
+    }
+};    
+            // Add share button after snapshot button
+            container.appendChild(shareBtn);
+        }
+    });
+}
+
+// Override showResults to add share button
+const originalShowResults = window.showResults;
+window.showResults = function() {
+    originalShowResults.call(this);
+    // Add share button after results are displayed
+    setTimeout(addShareButton, 100);
+};
+
+// Also add to playAgain function
+const originalPlayAgain = window.playAgain;
+window.playAgain = function() {
+    originalPlayAgain.call(this);
+};
+
         
         function createConfetti() {
             const colors = ['#00d4ff', '#ff6b9d', '#c44569', '#27ae60', '#e67e22', '#9b59b6'];
@@ -1628,7 +1789,7 @@ function startGame() {
                     
                     setTimeout(() => {
                         confetti.remove();
-                    }, 4000);
+                    }, 3000);
                 }, i * 50);
             }
         }
